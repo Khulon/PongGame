@@ -1,19 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Dimensions, PanResponder } from 'react-native';
+import { View, StyleSheet, Dimensions, PanResponder,ScrollView } from 'react-native';
 import Paddle from './Paddle';
 import Ball from './Ball';
 
 const { width, height } = Dimensions.get('window');
-const paddleSpeed = 10;
 
 const Game = () => {
-  const [paddlePosition, setPaddlePosition] = useState(height / 2);
-  const [ballPosition, setBallPosition] = useState({ x: width / 2, y: height / 2 });
-  const [ballVelocity, setBallVelocity] = useState({ x: -3, y: -3 });
 
-  const movePaddle = (direction, updatePosition) => {
-    updatePosition((prevPosition) => prevPosition + direction * paddleSpeed);
+  const [paddlePosition, setPaddlePosition] = useState(width / 2);
+  const [ballPosition, setBallPosition] = useState({ x: width / 2, y: height / 2 });
+  const [ballVelocity, setBallVelocity] = useState({ x: -10, y: -10 });
+
+  const movePaddle = (direction, paddleSpeed, updatePosition) => {
+    const newPaddlePosition = paddlePosition + direction * paddleSpeed
+    if (newPaddlePosition > 0 && newPaddlePosition < width) {
+      updatePosition((prevPosition) => prevPosition + direction * paddleSpeed);
+    } 
+
   };
+
+
 
   useEffect(() => {
     const gameLoop = setInterval(() => {
@@ -30,40 +36,46 @@ const Game = () => {
   
       // Check for collision with the paddle
       if (
-        newBallX <= width/2  && // Ensure the ball is within the horizontal range of the paddle
-        newBallX + 10 >= width/2 && // Check if the ball's right edge is within the paddle's left edge
-        newBallY + 10 >= paddlePosition - 40 && // Check if the ball's bottom edge is below the paddle's top edge
-        newBallY - 10 <= paddlePosition + 40 // Check if the ball's top edge is above the paddle's bottom edge
+        newBallY <= height/2  && // Ensure the ball is within the horizontal range of the paddle
+        newBallY >= height/2 && // Check if the ball's right edge is within the paddle's left edge
+        newBallX >= paddlePosition - 40 && // Check if the ball's bottom edge is below the paddle's top edge
+        newBallX <= paddlePosition + 40 // Check if the ball's top edge is above the paddle's bottom edge
       ) {
-        console.log('asdasd')
-        setBallVelocity((prevVelocity) => ({ ...prevVelocity, x: -prevVelocity.x }));
-      }
+        setBallVelocity((prevVelocity) => ({ ...prevVelocity, y: -prevVelocity.y }));
+      } 
   
       setBallPosition({ x: newBallX, y: newBallY });
     }, 16);
   
     return () => clearInterval(gameLoop);
-  }, [ballPosition, ballVelocity, paddlePosition]);
+  }, [ballPosition, ballVelocity]);
 
   const panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponder: () => true,
     onPanResponderMove: (event, gestureState) => {
-      movePaddle(gestureState.dy > 0 ? 1 : -1, setPaddlePosition); // Move paddle up or down based on gesture
+      event.preventDefault(); // Prevent default touch gestures, including scrolling
+      if (gestureState.dx != 0) {
+        movePaddle(gestureState.dx, 5, setPaddlePosition); // Move paddle up or down based on gesture
+      }
     },
   });
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={{width:'100%', height:'100%', borderWidth:'1px'}} scrollEnabled={false} showsVerticalScrollIndicator={false}>
+    <View scrollEnabled={false} style={styles.container}>
       <Paddle position={paddlePosition} />
       <Ball position={ballPosition} />
       <View style={styles.touchArea} {...panResponder.panHandlers} /> 
     </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    width:width,
+    height:height,
     backgroundColor: 'black',
     justifyContent: 'center',
     alignItems: 'center',
@@ -79,3 +91,5 @@ const styles = StyleSheet.create({
 });
 
 export default Game;
+
+
