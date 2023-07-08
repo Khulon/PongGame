@@ -65,39 +65,41 @@ async def button_click(callback_query: types.CallbackQuery):
 @dp.message_handler(content_types=types.ContentType.TEXT)
 async def update_high_scores(message: types.Message):
     chat_id = message.chat.id
-    logging.info(f"New message in chat {chat_id}: {message.text}")
+    logging.info(f"test {chat_id}")
 
     # Check if the message contains a new high score
     if message.text.isdigit():
         score = int(message.text)
 
         # Retrieve the current high scores for the chat
-        high_scores = chat_high_scores.get(chat_id, {}).get("scores", {})
+        high_scores = chat_high_scores.get(chat_id, {})
 
         # Check if the score is higher than the existing high score
         if not high_scores or score > max(high_scores.values()):
             # Update the high scores with the new score
             high_scores[message.from_user.username] = score
 
+            # Store the updated high scores
+            chat_high_scores[chat_id] = high_scores
+
             # Prepare the service message
             service_message = f"New high score set by {message.from_user.username}: {score}!"
 
-            # Send the service message
-            await bot.send_message(chat_id=chat_id, text=service_message)
+            # Send the service message as a service message
+            await bot.send_message(chat_id=chat_id, text=service_message, disable_notification=True)
 
-            # Retrieve the game message ID
-            game_message_id = chat_high_scores[chat_id]["game_message_id"]
+            # Check if there is an existing game message for the chat
+            if chat_id in chat_high_scores and "game_message_id" in chat_high_scores[chat_id]:
+                game_message_id = chat_high_scores[chat_id]["game_message_id"]
 
-            # Prepare the updated scoreboard message
-            scoreboard_message = "High Scores:\n\n"
-            for player, score in high_scores.items():
-                scoreboard_message += f"{player}: {score}\n"
+                # Prepare the updated scoreboard message
+                scoreboard_message = f"High Scores:\n\n"
+                for player, score in high_scores.items():
+                    scoreboard_message += f"{player}: {score}\n"
 
-            # Store the scoreboard message in chat_high_scores
-            chat_high_scores[chat_id]["scoreboard_message"] = scoreboard_message
+                # Edit the game message to include the updated scoreboard
+                await bot.edit_message_text(chat_id=chat_id, message_id=game_message_id, text=scoreboard_message)
 
-            # Edit the game message to include the updated scoreboard
-            await bot.edit_message_text(chat_id=chat_id, message_id=game_message_id, text=scoreboard_message)
 
 # Run the bot
 async def main():
