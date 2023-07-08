@@ -6,10 +6,12 @@ const Paddle = ({ position }) => {
     <View
       style={{
         position: 'absolute',
-        width: 10,
-        height: 70,
+        width: 70,
+        height: 10,
         backgroundColor: 'white',
-        top: position - 35,
+        left: position - 35,
+        justifyContent:'center',
+        alignItems:'center'
       }}
     />
   );
