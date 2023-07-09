@@ -41,6 +41,25 @@ async def start(message: types.Message):
     # Store the game message ID in chat_high_scores
     chat_high_scores[chat_id] = {"game_message_id": game_message.message_id, "scores": {}}
 
+# Define the inline query handler for handling inline queries
+@dp.inline_handler()
+async def inline_query_handler(inline_query: types.InlineQuery):
+    if inline_query.query == '':
+        game_result = types.InlineQueryResultGame(
+            id='1',
+            game_short_name=GAME_SHORT_NAME,
+            reply_markup=types.InlineKeyboardMarkup(inline_keyboard=[
+                [types.InlineKeyboardButton(text="Play Game!", callback_game=GAME_SHORT_NAME)]
+            ]),
+        )
+
+        # Answer the inline query with the game result
+        await bot.answer_inline_query(inline_query.id, results=[game_result])
+
+# Define the callback query handler for handling game button clicks
+@dp.callback_query_handler(lambda c: c.game_short_name == GAME_SHORT_NAME)
+async def button_click(callback_query: types.CallbackQuery):
+    await play_game(callback_query)
 
 # Define the handler for updating high scores
 @dp.message_handler(content_types=types.ContentType.TEXT)
