@@ -1,13 +1,14 @@
 import React from 'react';
-import { View, Text } from 'react-native';
-import Game from './components/Game';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Test from './test';
 
 const App = () => {
   return (
-    <View style={{ flex: 1 }}>
-      <Game />
-    </View>
+    <Router>
+      <Routes>
+        <Route path="/:chatId/:userId" element={<Test/>} />
+      </Routes>
+    </Router>
   );
 };
-
 export default App;

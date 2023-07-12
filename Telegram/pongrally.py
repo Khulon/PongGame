@@ -27,8 +27,18 @@ chat_high_scores = {}
 
 # Define the callback function for handling the game button click
 async def play_game(callback_query: types.CallbackQuery):
+    # Get the chat and user IDs
+    chat_id = callback_query.message.chat.id
+    user_id = callback_query.from_user.id
+
+    # Build the URL with query parameters
+    #base_url = "https://64a16caa22c0774d8d878959--khulonpong.netlify.app/"
+    base_url = "http://localhost:19006/"
+    url = f"{base_url}{chat_id}/{user_id}"
+    logging.info(f"{url}")
+
     # Open the game URL in the user's browser
-    await bot.answer_callback_query(callback_query.id, url="https://64a16caa22c0774d8d878959--khulonpong.netlify.app/")
+    await bot.answer_callback_query(callback_query.id, url=url)
 
 # Define the command handler for initiating the conversation
 @dp.message_handler(commands=['start'])
