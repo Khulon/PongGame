@@ -44,8 +44,8 @@ async def play_game(callback_query: types.CallbackQuery):
     user_id = callback_query.from_user.id
 
     # Build the URL with query parameters
-    #base_url = "https://64a16caa22c0774d8d878959--khulonpong.netlify.app/"
-    base_url = "http://localhost:19006/"
+    base_url = "https://64af54d01cc060009ce48517--deft-halva-8e855a.netlify.app/"
+    #base_url = "http://localhost:19006/"
     url = f"{base_url}{chat_id}/{user_id}/{message_id}/{inline_message_id}"
     logging.info(f"{url}")
 
