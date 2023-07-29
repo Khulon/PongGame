@@ -2,6 +2,8 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from encrypt import encrypt_aes
+
 
 # Set up logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -43,7 +45,13 @@ async def play_game(callback_query: types.CallbackQuery):
     # Build the URL with query parameters
     base_url = "https://64af54d01cc060009ce48517--deft-halva-8e855a.netlify.app/"
     #base_url = "http://localhost:19006/"
-    url = f"{base_url}{chat_id}/{user_id}/{message_id}/{inline_message_id}"
+
+    requiredInformation = f"{chat_id}/{user_id}/{message_id}/{inline_message_id}"
+
+    encrypted_data = encrypt_aes(requiredInformation)
+    print(f"Encrypted Data: {encrypted_data}")
+
+    url = f"{base_url}{requiredInformation}"
     logging.info(f"{url}")
 
     # Open the game URL in the user's browser
